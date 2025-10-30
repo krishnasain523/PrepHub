@@ -2,95 +2,59 @@ const express=require("express");
 const router=express.Router();
 const subjects =require("../models/subjectschema")
 const topics =require("../models/topicschema")
-const mcqs =require("../models/mcqschema")
-router.post("/subject",async(req,res)=>
+const mcqs =require("../models/mcqschema");
+const expresserr = require("../../utils/expresserr");
+const asynchandler=require("../midleware/asynchandler")
+router.post("/subject",asynchandler(async(req,res)=>
 {
-       try
-       {
-         const{name}=req.body;
-        const newsubject=await subjects.create({name});
+         const{name}=req.body;      
+          const newsubject=await subjects.create({name});
         res.status(201).json(newsubject,{massege:"subject created"});
-       }
-       catch(err){
-        console.log(err);
-       }
         
-})
-router.post("/topic",async(req,res)=>
-{
-        try{
-                  const{name,sub_id}=req.body;
+}));
+router.post("/topic",asynchandler(async(req,res)=>
+{                 const{name,sub_id}=req.body;
         const newtopic=await topics.create({name,sub_id});
         res.status(201).json(newtopic,{massege:"topic created"});
-        }
-        catch(err)
-        {
-                console.log(err);
-        }
         
-})
-router.post("/mcq",async(req,res)=>
+}))
+router.post("/mcq",asynchandler(async(req,res)=>
 {
-       try
-       {
          const{question,answer,options,topic_id}=req.body;
         const newmcqs=await mcqs.create({question,answer,options,topic_id});
         res.status(201).json(newmcqs,{massege:"mcqs created"});
-       }
-       catch(err)
-       {
-        console.log(err);
-       }
-})
-router.get("/subject",async(req,res)=>
+       
+}))
+router.get("/subject",asynchandler(async(req,res)=>
 {        
-       try{
          const subject=await subjects.find();
-        if(!subject)
+        if(subject.length===0)
         {
-                res.status(404).json({massege:"subject not availeble"});
+              throw new expresserr(404,"subjects not initailized");
         }
         res.json(subject);
-       }
-       catch(err)
-       {
-        console.log(err);
-       }
-})
+       
+}))
 
-router.get("/subject/:subjectid/topic",async(req,res)=>
-{
-        try{
-                const{subjectid}=req.params;
+router.get("/subject/:subjectid/topic",asynchandler(async(req,res)=>
+{               const{subjectid}=req.params;
         const topicdata=await topics.find({sub_id:subjectid});
         if(!topicdata)
         {
-                res.json({massege:"the topics is not defined"})
-                console.log("topic not find");
+               throw new expresserr(404,"topic not initailized");
         }
         res.json(topicdata);
-        }
-        catch(err)
-        {
-                console.log(err);
-        }
-})
+        
+}))
 
-router.get("/topic/:topicid/mcq",async(req,res)=>
-{
-          try{
-                const{topicid}=req.params;
+router.get("/topic/:topicid/mcq",asynchandler(async(req,res)=>
+{               const{topicid}=req.params;
         const mcqdata=await mcqs.find({ topic_id:topicid});
         if(!mcqdata)
         {
-                res.json({massege:"the mcqs is not defined"})
+               throw new expresserr(404,"mcq is not defind");
         }
         res.json(mcqdata);
-        }
-        catch(err)
-        {
-                console.log(err);
-        }
-});
+}));
 
 module.exports=router;

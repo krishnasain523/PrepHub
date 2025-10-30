@@ -12,7 +12,10 @@ const authroutes=require("./src/routes/authroutes")
 const userroutes=require("./src/routes/userroutes")
 const quizroutes=require("./src/routes/quijroutes");
 const pyqroutes=require("./src/routes/pyqroutes");
-const verifytoken=require("./src/midleware/authmiddleware")
+const chatroutes=require("./src/routes/chatroutes")
+const verifytoken=require("./src/midleware/authmiddleware");
+const errorhandler = require("./src/midleware/errorhandler");
+const askGemini=require("./src/config/gemini");
 // JSON body parse karne ke liye
 
 app.use(express.json());
@@ -36,4 +39,5 @@ app.use("/api/auth",authroutes);
 app.use("/api",userroutes);
 app.use("/api",quizroutes);
 app.use("/api",pyqroutes);
-
+app.use("/api", chatroutes);
+app.use(errorhandler);

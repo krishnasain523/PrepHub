@@ -1,14 +1,11 @@
 const jwt=require("jsonwebtoken");
 
-const verifytoken=(req,res,next)=>{
+const verifyuser=(req,res,next)=>{
     let token;
-         const authheader = req.headers["authorization"];
-     if(authheader&& authheader.startsWith("Bearer"))
-     {
-         token=authheader.split(" ")[1];
+         token=req.cookies.token;
          if(!token)
          {
-            res.json({massege:"no token autherization denied"});
+            res.json({massege:" you must loged in first"});
          }
          try{
             const decode=jwt.verify(token,process.env.token_secret);
@@ -21,6 +18,6 @@ const verifytoken=(req,res,next)=>{
          {
             res.json({massege:"token is not valid"})
          }
-     }
+     
 }
-module.exports=verifytoken;
+module.exports=verifyuser;

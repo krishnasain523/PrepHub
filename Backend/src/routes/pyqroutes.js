@@ -2,42 +2,36 @@ const express=require("express");
 const router=express.Router();
 const companys=require("../models/companyschema");
 const pyqs=require("../models/pyqschema");
-router.post("/company",async(req,res)=>{
-    try{
+const expresserr = require("../../utils/expresserr");
+const asynchandler=require("../midleware/asynchandler")
+router.post("/company",asynchandler(async(req,res)=>{
         const{name}=req.body;
         const newcompany=await companys.create({name});
         res.status(202).json({massege:"company listed"},newcompany);
-    }
-    catch(err)
-    {
-         console.log(err);
-    }
-})
-router.post("/pyq",async(req,res)=>{
-    try
-    {
+}))
+router.post("/pyq",asynchandler(async(req,res)=>{
         const {name,year,file_url,comp_id}=req.body;
         const newpyq=await pyqs.create({name,year,file_url,comp_id})
          res.status(202).json({massege:"pyq uploaded"},newpyq);
-    }
-    catch(err)
+
+}))
+
+router.get("/company",asynchandler(async(req,res)=>{
+    const company=await companys.find();
+    if(company.length===0 )
     {
-        console.log(err);
+         throw new expresserr(404," company not initilaized")
     }
-})
-router.get("/company/:comp_id/pyq",async(req,res)=>{
-    try
-    {   const{comp_id}=req.params;
+    res.json(company);
+}))
+router.get("/company/:comp_id/pyq",asynchandler(async(req,res)=>{
+       const{comp_id}=req.params;
        const pyq=await pyqs.find({comp_id:comp_id});
        if(!pyq)
        {
-        res.json({massege:"company not listed"})
+        throw new expresserr(404," pyq not uploaded");
        }
        res.json(pyq);
-    }
-    catch(err)
-    {
-        console.log(err);
-    }
-})
+    
+}))
 module.exports=router
